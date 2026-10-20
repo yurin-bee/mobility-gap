@@ -19,6 +19,7 @@
 - 680곳 중 **271곳(39.9%)**은 대중교통이 자동차보다 3배 이상 걸림
 - **255곳**은 대중교통이 30분 이상 더 걸림
 - 평균 자동차 15.1분 vs 대중교통 42.7분
+- 공백 마을에서 병원 왕복 1회당 1인 CO2: LPG 복지택시 5.0kg → 전기택시 2.1kg(−59%) → 전기 DRT 3명 합승 0.9kg(−81%)
 
 ![이동공백지수 지도](figures/fig1_map.png)
 ![자동차 vs 대중교통](figures/fig2_scatter.png)
@@ -30,6 +31,7 @@
 | `collect_data.py` | 데이터 수집 (병원 → 좌표 변환 → 거점 군집화 → 소요시간) |
 | `analyze.py` | 지수 산출, 회귀 추정, K-means, 그림 생성 |
 | `flowchart.py` | 분석 알고리즘 흐름도 |
+| `report_figures.py` | 보고서용 그림 11장 (전국 맥락, 행정동 지도, 유형 비교, 탄소 감축) → `figures/report/` |
 | `data/` | 수집 결과 (병원, 거점, 경로당 좌표, 소요시간) |
 | `figures/` | 결과 그림, 순위표(`ranking.csv`), 인터랙티브 지도(`map_interactive.html`) |
 
@@ -40,6 +42,9 @@ pip install -r requirements.txt
 
 # 분석만 다시 실행 (data 폴더에 수집 결과가 들어 있음)
 python analyze.py data figures
+
+# 보고서용 그림 (analyze.py 다음에 실행)
+python report_figures.py
 
 # 데이터를 처음부터 수집하려면: keys.example.json을 keys.json으로 복사해 API 키 입력 후
 python collect_data.py
@@ -53,12 +58,16 @@ python collect_data.py
 - 전북특별자치도 정읍시_경로당 현황 (2024.12.31), 공공데이터포털
 - 건강보험심사평가원_전국 병의원 및 약국 현황, 공공데이터포털
 - 행정안전부 주민등록 인구통계, 행정동별 연령별 인구현황 (2026년 9월, `data/elderly.csv`)
+- 행정동 경계: 통계청 SGIS, [vuski/admdongkor](https://github.com/vuski/admdongkor) ver20261001 가공본 (CC BY 4.0, `data/jeongeup_admdong.geojson`)
+- 탄소 산정: 2024 국가 온실가스 잠정배출량, 한국에너지공단 EG-TIPS 연료별 발열량·배출계수, 2023 국가 전력배출계수(0.4173 tCO2/MWh)
+- 전국 맥락: 도로교통공단 고령운전자 교통사고 현황(2018~2024), 경찰청·국회입법조사처 자료(2026.7 보도)
 - 카카오 로컬 API, 카카오모빌리티 길찾기 API, ODsay 대중교통 길찾기 API
 
 ## 한계
 
 - ODsay 무료 계정의 하루 호출 한도로 대중교통 실측은 74곳이며, 나머지는 회귀모델 추정값입니다.
 - ODsay 소요시간은 배차 대기시간을 충분히 반영하지 않아 실제 공백은 더 클 수 있습니다.
+- 탄소 계산의 연비·전비, 연간 이용 횟수(주 3회)는 가정값입니다.
 - 고령인구 비율은 마을 단위 공개 자료가 없어 읍면동 비율을 그 안의 모든 경로당에 똑같이 적용했습니다. 아파트가 많은 동(농소동 등) 안의 농촌 마을은 실제보다 고령비율이 낮게 잡힐 수 있습니다.
 
 ## AI 활용

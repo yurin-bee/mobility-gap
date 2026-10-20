@@ -91,6 +91,10 @@ if missing.any() and len(train) >= MIN_TRAIN:
         scores[name] = (np.mean(np.abs(pred - ytr)), pred)
     best = min(scores, key=lambda k: scores[k][0])
     mae, cvpred = scores[best]
+    pd.DataFrame({"경로당명": train["경로당명"].values, "읍면동": train["읍면동"].values,
+                  "실측_분": ytr.values,
+                  **{f"예측_{k}": v[1] for k, v in scores.items()}}) \
+        .to_csv(f"{FIG}/cv_predictions.csv", index=False, encoding="utf-8-sig")
     model = cands[best].fit(Xtr, ytr)
     t.loc[missing, "대중교통_분"] = model.predict(features(t[missing]))
     t.loc[missing, "대중교통_추정"] = True
@@ -184,6 +188,8 @@ rank = t.sort_values("이동공백지수", ascending=False)
 rank[["읍면동", "경로당명", "자동차_분", "대중교통_분_보정", "대중교통_추정", "이동공백비",
       "추가시간_분", "이동공백지수", "군집명", "대중교통_메모"]].round(1) \
     .to_csv(f"{FIG}/ranking.csv", index=False, encoding="utf-8-sig")
+# 보고서 그림(report_figures.py)용 전체 결과
+t.to_csv(f"{FIG}/villages_scored.csv", index=False, encoding="utf-8-sig")
 
 # ---------- 3. 그림 1: 지도 ----------
 fig, ax = plt.subplots(figsize=(8, 8.5))
